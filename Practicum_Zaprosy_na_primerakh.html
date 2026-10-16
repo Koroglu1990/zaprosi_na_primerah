@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Практикум: Запросы на основе примеров</title>
+<style>
+
+:root{
+  --navy:#14213D; --orange:#F05032; --ink:#1f2630; --muted:#5b6672;
+  --bg:#f5f7f9; --card:#ffffff; --border:#dfe4ea; --code-bg:#17212b; --code-fg:#e6eaf0;
+  --green:#1e9e6a; --green-bg:#e7f6ef; --blue:#2f6fde; --blue-bg:#eaf1ff;
+  --yellow:#d98a00; --yellow-bg:#fff6e0; --red:#c0392b; --red-bg:#fdeceb;
+}
+html.dark{
+  --bg:#0f1420; --card:#161d2b; --border:#2a3346; --ink:#e7ebf2; --muted:#9aa6b8;
+  --blue-bg:#16233f; --green-bg:#0f2a21; --yellow-bg:#2e2410; --red-bg:#2e1716;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+a{color:var(--blue);}
+header.top{
+  position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;padding:10px 16px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+header.top h1{font-size:16px;margin:0;font-weight:700;flex:0 0 auto;}
+.progressWrap{flex:1 1 220px;min-width:160px;}
+.progressTrack{background:rgba(255,255,255,.18);border-radius:8px;height:10px;overflow:hidden;}
+.progressFill{background:var(--orange);height:100%;width:0;transition:width .3s;}
+.progressLabel{font-size:11px;opacity:.85;margin-top:3px;}
+.whoLabel{font-size:12px;opacity:.9;}
+.topBtns{display:flex;gap:8px;margin-left:auto;}
+.topBtns button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;
+  padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;}
+.topBtns button:hover{background:rgba(255,255,255,.22);}
+
+.layout{display:flex;max-width:1180px;margin:0 auto;gap:0;align-items:flex-start;}
+nav.sidebar{width:260px;flex:0 0 260px;padding:14px 10px;position:sticky;top:54px;max-height:calc(100vh - 54px);overflow:auto;}
+nav.sidebar ul{list-style:none;margin:0;padding:0;}
+.navItem{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;gap:6px;align-items:center;
+  color:var(--muted);margin-bottom:2px;}
+.navItem:hover{background:var(--card);}
+.navItem.active{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--border);}
+.navItem.done{color:var(--green);}
+.navTag{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--orange);flex:0 0 auto;min-width:60px;}
+.navCheck{margin-left:auto;color:var(--green);}
+
+main#app{flex:1;padding:18px 20px 60px;max-width:820px;}
+.part{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 24px;}
+.partTag{color:var(--orange);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+.part h2{margin:4px 0 14px;color:var(--navy);}
+html.dark .part h2{color:#fff;}
+.theory{font-size:14.5px;line-height:1.6;}
+.theory code{background:var(--blue-bg);padding:1px 5px;border-radius:4px;font-family:'DejaVu Sans Mono',monospace;font-size:13px;}
+.theory table.pt{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px;}
+.theory table.pt th,.theory table.pt td{border:1px solid var(--border);padding:6px 9px;text-align:left;}
+.theory table.pt th{background:var(--navy);color:#fff;}
+
+.codebox{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:12px 14px;margin:10px 0;
+  overflow-x:auto;user-select:none;-webkit-user-select:none;}
+.codebox pre{margin:0;font-family:'DejaVu Sans Mono',Consolas,monospace;font-size:12.5px;white-space:pre;}
+
+.tasks{margin-top:18px;}
+.challenge{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;background:var(--bg);}
+html.dark .challenge{background:#11182a;}
+.challenge.solved{border-color:var(--green);}
+.chHead{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.chBadge{font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:5px;flex:0 0 auto;margin-top:2px;}
+.chBadge.code{background:var(--navy);color:#fff;}
+.chBadge.calc{background:var(--blue-bg);color:var(--blue);}
+.chBadge.compose{background:var(--yellow-bg);color:var(--yellow);}
+.chTitle{font-size:13.5px;line-height:1.5;}
+.answerBox{width:100%;border:1px solid var(--border);border-radius:7px;padding:9px 10px;font-size:13.5px;
+  background:var(--card);color:var(--ink);font-family:inherit;}
+.answerBox.code{font-family:'DejaVu Sans Mono',Consolas,monospace;min-height:120px;resize:vertical;font-size:12.5px;}
+.answerBox.compose{min-height:70px;resize:vertical;}
+.chRow{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.chRow button,button.primary,#gateStart,.partNav button{
+  background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;
+}
+.chRow button:hover,button.primary:hover{opacity:.9;}
+button.primary{background:var(--orange);}
+.chMsg{font-size:12.5px;color:var(--muted);}
+.chMsg.ok{color:var(--green);font-weight:600;}
+.chMsg.err{color:var(--red);}
+
+.partNav{display:flex;justify-content:space-between;margin-top:22px;}
+.partNav button{background:var(--border);color:var(--ink);}
+.partNav button.primary{background:var(--orange);color:#fff;}
+.partNav button:disabled{opacity:.4;cursor:not-allowed;}
+
+.statusLine{font-family:'DejaVu Sans Mono',Consolas,monospace;font-size:12.5px;}
+
+/* ---- экран входа ---- */
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.gateCard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:30px 32px;max-width:420px;width:100%;}
+.gateCard h1{color:var(--navy);font-size:20px;margin:0 0 4px;}
+html.dark .gateCard h1{color:#fff;}
+.gateCard p.sub{color:var(--muted);font-size:13px;margin:0 0 20px;}
+.gateCard label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 4px;}
+.gateCard select,.gateCard input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;
+  font-size:13.5px;background:var(--bg);color:var(--ink);}
+#gateStart{width:100%;margin-top:18px;padding:11px;font-size:14px;}
+#gateStart:disabled{opacity:.45;cursor:not-allowed;}
+#gateErr{color:var(--red);font-size:12.5px;margin-top:8px;min-height:16px;}
+
+@media(max-width:860px){
+  .layout{flex-direction:column;}
+  nav.sidebar{width:100%;position:static;max-height:none;display:flex;overflow-x:auto;gap:4px;padding:10px;}
+  nav.sidebar ul{display:flex;gap:4px;}
+  .navItem{white-space:nowrap;}
+  main#app{padding:14px;max-width:100%;}
+}
+
+
+</style>
+</head>
+<body>
+
+
+<div id="gate">
+  <div class="gateCard">
+    <h1>Практикум: Запросы на основе примеров</h1>
+    <p class="sub">Zero-Shot Prompting · One-Shot Prompting · Few-Shot Prompting</p>
+
+    <label for="gateGroup">Группа</label>
+    <select id="gateGroup">
+      <option value="">— выберите —</option>
+    </select>
+
+    <div id="gateStudentWrap" style="display:none">
+      <label for="gateStudent">Студент</label>
+      <select id="gateStudent" disabled>
+        <option value="">— выберите —</option>
+      </select>
+    </div>
+
+    <div id="gateManualWrap" style="display:none">
+      <label for="gateName">Имя и фамилия</label>
+      <input id="gateName" type="text" placeholder="Иванов Иван">
+      <label for="gateGroupManual">Группа (если не из списка выше)</label>
+      <input id="gateGroupManual" type="text" placeholder="например, 2П1">
+    </div>
+
+    <button id="gateStart" disabled>Начать</button>
+    <div id="gateErr"></div>
+  </div>
+</div>
+
+<div id="mainUi" style="display:none">
+  <header class="top">
+    <h1>PE-практикум: примеры</h1>
+    <div class="progressWrap">
+      <div class="progressTrack"><div class="progressFill" id="progressFill"></div></div>
+      <div class="progressLabel" id="progressLabel">Решено 0 из 0 (0%)</div>
+    </div>
+    <div class="whoLabel" id="whoLabel"></div>
+    <div class="topBtns">
+      <button id="themeToggle">Тема</button>
+      <button id="resetProgressBtn">Сбросить прогресс</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar"><ul id="navList"></ul></nav>
+    <main id="app"></main>
+  </div>
+</div>
+
+
+<script>
+
+// core.js — проверка ответов студента: typed (код), calc (расчёт/термин), compose (открытое задание)
+
+function normLine(line) {
+  const m = line.match(/^([ \t]*)(.*)$/s);
+  let indent = (m[1] || "").replace(/\t/g, "    ");
+  let rest = (m[2] || "");
+  rest = rest.replace(/\s+/g, " ").trim();
+  // пробелы вокруг скобок, запятых, двоеточий и = не важны
+  rest = rest.replace(/\s*([(),:=\[\]])\s*/g, "$1");
+  // но после запятой/двоеточия для читаемости сравнения добавим обратно одно пространство
+  rest = rest.replace(/([,:])(?=\S)/g, "$1 ");
+  return indent + rest;
+}
+
+function normCode(code) {
+  return String(code || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((l) => l.replace(/\s+$/, ""))
+    .filter((l, i, arr) => !(l.trim() === "" && (i === 0 || i === arr.length - 1)))
+    .map(normLine)
+    .join("\n")
+    .trim();
+}
+
+function checkTyped(challenge, submitted) {
+  const a = normCode(challenge.code);
+  const b = normCode(submitted);
+  return { ok: a.length > 0 && a === b, expectedNorm: a, gotNorm: b };
+}
+
+function normAnswer(s) {
+  return String(s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/ё/g, "е")
+    .replace(/[«»"']/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/[.!]+$/g, "");
+}
+
+function checkCalc(challenge, submitted) {
+  const got = normAnswer(submitted);
+  if (!got) return { ok: false };
+  if (challenge.set) {
+    // неупорядоченный набор значений через запятую
+    const want = (challenge.answers || [challenge.answer])[0]
+      .split(",")
+      .map((x) => normAnswer(x))
+      .filter(Boolean)
+      .sort();
+    const have = got
+      .split(",")
+      .map((x) => normAnswer(x))
+      .filter(Boolean)
+      .sort();
+    return { ok: want.length === have.length && want.every((w, i) => w === have[i]) };
+  }
+  const answers = challenge.answers || [challenge.answer];
+  const ok = answers.some((a) => normAnswer(a) === got);
+  return { ok };
+}
+
+function checkCompose(challenge, submitted) {
+  const t = String(submitted || "").trim();
+  const minLen = challenge.minLen || 25;
+  return { ok: t.length >= minLen };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { normLine, normCode, checkTyped, normAnswer, checkCalc, checkCompose };
+}
+
+
+</script>
+<script>
+
+// students.js — список групп и студентов дисциплины «Prompt-Engineering для ИИ»
+
+const GROUPS = {
+  "2П1": [
+    "Абдулгалимова Диана Эльмаровна",
+    "Алиева Азипат Алиевна",
+    "Арсланова Жаннет Владимировна",
+    "Асельдеров Ислам Ринатович",
+    "Багаутдинов Мухтар Маммаевич",
+    "Багаутдинов Рамазан Маммаевич",
+    "Белая Весна Сергеевна",
+    "Гаджиева Фатима Пайзутдиновна",
+    "Гебеков Салавутдин Умарович",
+    "Дадаева Лейла Зауровна",
+    "Джарасов Муслим Мадридович",
+    "Исаев Зинетдин Робертович",
+    "Исмаилова Малика Закировна",
+    "Магомедов Магомед Вадимович",
+    "Магомедова Маликат Магомедовна",
+    "Маммацаева Амина Рамазановна",
+    "Меджидов Рамазан Арифович",
+    "Мирзабекова Фатима Фикретовна",
+    "Нисимов Давид Станиславович",
+    "Селюков Руслан Андреевич",
+    "Факиева Диана Хизриевна",
+    "Шамхалов Ахмед Алимпашаевич",
+    "Юсупов Имагаджияв Магомедалиевич",
+  ],
+  "2П2": [
+    "Абдуллаев Сейфулла Тимурович",
+    "Абдурахманов Хизри Гаджиевич",
+    "Алиев Джабраил Мурадович",
+    "Алимов Эльдар Замирович",
+    "Багомедов Гасан Рабадан-Гаджиевич",
+    "Бахарчиева Рабият Магомедовна",
+    "Далгатов Анзор Магомед-Расулович",
+    "Джакавов Амир Сахратулаевич",
+    "Ильясов Седретдин Игоревич",
+    "Кадиева Амира Рустамовна",
+    "Кадыров Мирза Усманович",
+    "Магомедов Магомед Ибрагимович",
+    "Магомедов Магомедсултан Магомедхабибович",
+    "Мусаева Аминат Мусаевна",
+    "Мутаилов Шамиль Гайдарович",
+    "Нуцалханов Нуцалхан Гаджи-Мурадович",
+    "Омаров Адам Гаджиевич",
+    "Узаиров Рамазан Хаджимурадович",
+    "Хажахмаев Загир Темирбулатович",
+    "Хасмамедов Саид Кавказович",
+    "Шапилов Рамазан Шапиевич",
+  ],
+  "2П3": [
+    "Абакаров Абдула Магомед-Хабибович",
+    "Абдулгалимов Амир Даниялович",
+    "Азизов Адам Нурмагомедович",
+    "Алиев Саид Алиевич",
+    "Арабханов Давуд Фирузович",
+    "Асхабов Муслим Муратович",
+    "Балитинов Шамиль Балитинович",
+    "Гусейнов Гусейн Арсланович",
+    "Давудов Магомед Ахмедович",
+    "Зейналов Далгат Эльдарович",
+    "Ибаков Эльдар Ибрагимович",
+    "Ибрагимов Юсуф Абдулкадырович",
+    "Исламов Махач Мурадович",
+    "Курбанов Махач Шамилевич",
+    "Магомедов Курбанмагомед Шамильевич",
+    "Омаров Магомед Алиевич",
+    "Омаров Саид Рустамович",
+    "Разаков Азиз Магомедович",
+    "Салихов Исламгерей Хангереевич",
+    "Сулейманов Мухаммад Русланович",
+    "Халитов Али Абдулаевич",
+    "Ханапов Магомед Абдулаевич",
+    "Шихабудинов Гамзат Шихабудинович",
+    "Эфендиев Первис Абдурахманович",
+  ],
+};
+
+if (typeof module !== "undefined") {
+  module.exports = GROUPS;
+}
+
+
+</script>
+<script>
+
+// parts.js — содержание практикума «Запросы на основе примеров»
+// Темы: Zero-Shot Prompting · One-Shot Prompting · Few-Shot Prompting
+// Только практика: теория + код для набора (без вопросов-ответов и без открытых заданий)
+
+const ZERO_SHOT_CODE = {
+  build: `def build_zero_shot_prompt(instruction, context, input_data, output_indicator="Класс:"):
+    """Zero-shot: инструкция + контекст + входные данные, без единого примера ответа."""
+    parts = [
+        f"Инструкция: {instruction}",
+        f"Контекст: {context}",
+        f"Входные данные: {input_data}",
+        output_indicator,
+    ]
+    return "\\n\\n".join(parts)`,
+  classify: `CLASSES = ["Высокий", "Средний", "Низкий"]
+
+def classify_zero_shot(problem):
+    """Собирает zero-shot запрос для классификации проблемы по важности, без примеров."""
+    instruction = "Установите название класса для описанной проблемы."
+    context = "Возможные классы: " + ", ".join(CLASSES) + "."
+    input_data = f"Проблема: {problem}"
+    return build_zero_shot_prompt(instruction, context, input_data)`,
+};
+
+const ONE_SHOT_CODE = {
+  build: `def build_one_shot_prompt(instruction, example_input, example_output, new_input):
+    """One-shot: ровно один пример вход -> выход, затем новый вход без ответа."""
+    parts = [
+        instruction,
+        f"Вход: {example_input}\\nВыход: {example_output}",
+        f"Вход: {new_input}\\nВыход:",
+    ]
+    return "\\n\\n".join(parts)`,
+  api: `def build_api_summary_prompt(example_output, new_document):
+    """One-shot по примеру со слайда: один образец формата {Title}, {Key Points}, {Summary}."""
+    instruction = "Обобщи французский текст на английском, используя тот же формат, что и в примере."
+    example = f"Пример формата ответа: {example_output}"
+    task = f"Документ для обработки: {new_document}"
+    return "\\n\\n".join([instruction, example, task])`,
+};
+
+const FEW_SHOT_CODE = {
+  retrieve: `def retrieve_relevant_examples(query, example_pool, k=2):
+    """Упрощённый 'векторный поиск': ранжируем примеры по числу общих слов с запросом."""
+    query_words = set(query.lower().split())
+    scored = []
+    for example in example_pool:
+        example_words = set(example["input"].lower().split())
+        overlap = len(query_words & example_words)
+        scored.append((overlap, example))
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return [example for _, example in scored[:k]]`,
+  build: `def build_few_shot_prompt(instruction, examples, new_input):
+    """Few-shot: несколько примеров вход -> выход, затем новый вход без ответа."""
+    blocks = [instruction]
+    for example in examples:
+        blocks.append(f"Вход: {example['input']}\\nВыход: {example['output']}")
+    blocks.append(f"Вход: {new_input}\\nВыход:")
+    return "\\n\\n".join(blocks)`,
+  classify: `def classify_with_few_shot(query, example_pool, k=2):
+    """Полный мини-пайплайн few-shot: запрос -> поиск примеров -> сборка финального промпта."""
+    instruction = "Определи тональность отзыва по приведённым примерам."
+    examples = retrieve_relevant_examples(query, example_pool, k)
+    return build_few_shot_prompt(instruction, examples, query)`,
+};
+
+const PARTS = [
+  // ===================== 0. СТАРТ =====================
+  {
+    id: 0,
+    tag: "Старт",
+    title: "Что внутри этого практикума",
+    html: `
+      <p>Этот практикум посвящён разделу «Запросы на основе примеров» дисциплины «Prompt-Engineering для ИИ»:
+      <b>Zero-Shot Prompting</b>, <b>One-Shot Prompting</b> и <b>Few-Shot Prompting</b> — три стратегии,
+      отличающиеся количеством примеров, которые мы даём модели перед тем, как попросить её выполнить задачу.</p>
+      <p>Здесь нет вопросов с вариантами ответа — только практика: по каждой теме показан рабочий код на Python,
+      который собирает соответствующий запрос (промпт) программно. Задание — напечатать этот код самостоятельно
+      в соседнем поле; скопировать его нельзя.</p>
+      <p>Прогресс сохраняется в этом браузере. В конце — отчёт преподавателю (копируется текстом).</p>
+    `,
+    challenges: [],
+  },
+
+  // ===================== 1. ZERO-SHOT: КАК СОБРАТЬ ЗАПРОС =====================
+  {
+    id: 1,
+    tag: "Zero-Shot",
+    title: "Zero-Shot: запрос без единого примера",
+    html: `
+      <p>При <b>zero-shot prompting</b> модель получает инструкцию выполнить задачу, не видя ни одного примера
+      желаемого ответа. У такого запроса есть четыре составные части: <b>инструкция</b>, <b>контекст</b>,
+      <b>входные данные</b> и необязательный <b>индикатор вывода</b> — он подсказывает модели, в каком виде
+      нужно ответить (например, слово «Класс:» перед ожидаемым названием класса).</p>
+      <p>Напечатайте функцию, которая собирает такой запрос из четырёх частей — код нельзя скопировать,
+      напечатайте его сами.</p>
+      <div class="codebox" data-nocopy="1"><pre>${ZERO_SHOT_CODE.build}</pre></div>
+    `,
+    challenges: [{ code: ZERO_SHOT_CODE.build, filename: "build_zero_shot_prompt" }],
+  },
+
+  // ===================== 2. ZERO-SHOT: КЛАССИФИКАЦИЯ =====================
+  {
+    id: 2,
+    tag: "Zero-Shot",
+    title: "Zero-Shot: классификация без примеров",
+    html: `
+      <p>Типичный пример zero-shot из занятия — классификация проблемы пользователя по названию класса,
+      когда модели заранее не показывают ни одной размеченной пары «проблема → класс». Модель должна
+      опереться только на инструкцию и список возможных классов из контекста.</p>
+      <p>Функция ниже использует уже набранную <code>build_zero_shot_prompt</code>, чтобы собрать запрос
+      для классификации проблемы по важности (классы: «Высокий», «Средний», «Низкий»).</p>
+      <div class="codebox" data-nocopy="1"><pre>${ZERO_SHOT_CODE.classify}</pre></div>
+    `,
+    challenges: [{ code: ZERO_SHOT_CODE.classify, filename: "classify_zero_shot" }],
+  },
+
+  // ===================== 3. ONE-SHOT: ОДИН ПРИМЕР =====================
+  {
+    id: 3,
+    tag: "One-Shot",
+    title: "One-Shot: ровно один пример",
+    html: `
+      <p><b>One-shot prompting</b> — частный случай между zero-shot и few-shot: модели показывают
+      <b>один</b> пример входа и ожидаемого выхода, а затем просят обработать новый вход так же.
+      Это особенно полезно, когда размеченных данных мало или собрать их дорого — одного образца часто
+      хватает, чтобы модель «поняла», какой формат ответа нужен.</p>
+      <p>Напечатайте функцию, которая собирает one-shot запрос: инструкция → один пример → новый вход.</p>
+      <div class="codebox" data-nocopy="1"><pre>${ONE_SHOT_CODE.build}</pre></div>
+    `,
+    challenges: [{ code: ONE_SHOT_CODE.build, filename: "build_one_shot_prompt" }],
+  },
+
+  // ===================== 4. ONE-SHOT: ПРИМЕР СО СЛАЙДА =====================
+  {
+    id: 4,
+    tag: "One-Shot",
+    title: "One-Shot: пример с занятия — пересказ под формат API",
+    html: `
+      <p>На занятии рассматривался случай: нужно пересказать французский документ на английском и сразу
+      уложить результат в формат, который ожидает конкретный API — например, шаблон
+      <code>{Title}, {Key Points}, {Summary}</code>. Один пример такого формата в запросе — и модель
+      переносит его на новый документ, используя свои многоязычные возможности.</p>
+      <p>Напечатайте функцию, которая собирает такой запрос из примера формата и нового документа.</p>
+      <div class="codebox" data-nocopy="1"><pre>${ONE_SHOT_CODE.api}</pre></div>
+    `,
+    challenges: [{ code: ONE_SHOT_CODE.api, filename: "build_api_summary_prompt" }],
+  },
+
+  // ===================== 5. FEW-SHOT: ПОИСК ПРИМЕРОВ =====================
+  {
+    id: 5,
+    tag: "Few-Shot",
+    title: "Few-Shot: сначала находим подходящие примеры",
+    html: `
+      <p><b>Few-shot prompting</b> показывает модели несколько примеров, а не один. На занятии описывалась
+      архитектура с «векторным хранилищем»: все доступные примеры лежат в базе, и для нового запроса система
+      сначала находит среди них наиболее релевантные (семантический поиск, в духе RAG), а уже потом собирает
+      из них финальный запрос.</p>
+      <p>Ниже — упрощённая версия такого поиска: вместо настоящих векторных представлений считаем, сколько
+      слов совпадает у запроса с каждым примером, и берём <code>k</code> лучших совпадений.</p>
+      <div class="codebox" data-nocopy="1"><pre>${FEW_SHOT_CODE.retrieve}</pre></div>
+    `,
+    challenges: [{ code: FEW_SHOT_CODE.retrieve, filename: "retrieve_relevant_examples" }],
+  },
+
+  // ===================== 6. FEW-SHOT: СБОРКА И ПОЛНЫЙ ПАЙПЛАЙН =====================
+  {
+    id: 6,
+    tag: "Few-Shot",
+    title: "Few-Shot: сборка запроса и полный пайплайн классификации",
+    html: `
+      <p>Когда подходящие примеры найдены, их нужно вставить в запрос вместе с инструкцией и новым входом —
+      по одному блоку «Вход → Выход» на каждый пример. Это и есть сборка few-shot запроса.</p>
+      <p>Напечатайте функцию сборки:</p>
+      <div class="codebox" data-nocopy="1"><pre>${FEW_SHOT_CODE.build}</pre></div>
+    `,
+    challenges: [{ code: FEW_SHOT_CODE.build, filename: "build_few_shot_prompt" }],
+    challenges2: [
+      {
+        pre: `<p>Теперь объединим обе функции в один мини-пайплайн классификации тональности отзыва:
+        запрос пользователя → поиск релевантных примеров → сборка few-shot запроса. Именно такую цепочку
+        «запрос → векторное хранилище → релевантные примеры → финальный промпт → LLM → результат»
+        описывает архитектура few-shot с занятия.</p>
+        <div class="codebox" data-nocopy="1"><pre>${FEW_SHOT_CODE.classify}</pre></div>`,
+      },
+      { code: FEW_SHOT_CODE.classify, filename: "classify_with_few_shot" },
+    ],
+  },
+
+  // ===================== 7. ФИНАЛ =====================
+  {
+    id: 7,
+    tag: "Финал",
+    title: "Итоги",
+    html: `
+      <p>Вы прошли все три стратегии раздела «Запросы на основе примеров»: от полного отсутствия примеров
+      (zero-shot) через один образец (one-shot) к нескольким подобранным примерам (few-shot). На следующей
+      странице — отчёт для преподавателя.</p>
+    `,
+    challenges: [],
+  },
+];
+
+if (typeof module !== "undefined") {
+  module.exports = { PARTS, ZERO_SHOT_CODE, ONE_SHOT_CODE, FEW_SHOT_CODE };
+}
+
+</script>
+<script>
+
+// engine.js — интерфейс практикума: вход, рендер частей, проверка, прогресс, антикопипаст, отчёт
+
+(function () {
+  "use strict";
+
+  // ---------- конфигурация отчёта (заполнить после создания Google-формы) ----------
+  // Как получить эти значения:
+  // 1. Создайте Google-форму с четырьмя полями типа «Краткий ответ»: Имя и Фамилия, Группа, Статус, Решено заданий.
+  // 2. В редакторе формы откройте ⋮ -> «Получить ссылку с предварительно заполненными ответами», впишите в поля
+  //    тестовые значения, нажмите «Получить ссылку» и скопируйте её целиком.
+  // 3. В скопированной ссылке в GOOGLE_FORM_ACTION вставьте часть до "/viewform", заменив на "/formResponse".
+  // 4. Номера entry.XXXXXXXXX из ссылки — по порядку в GOOGLE_FORM_ENTRIES (имя, группа, статус, решено заданий).
+  const GOOGLE_FORM_ACTION = ""; // например: "https://docs.google.com/forms/d/e/XXXXX/formResponse"
+  const GOOGLE_FORM_ENTRIES = {
+    name: "", // entry.XXXXXXXXX для «Имя и Фамилия»
+    group: "", // entry.XXXXXXXXX для «Группа»
+    status: "", // entry.XXXXXXXXX для «Статус»
+    solved: "", // entry.XXXXXXXXX для «Решено заданий»
+  };
+  const EXPECTED_HOST = "koroglu1990.github.io";
+
+  const STORAGE_KEY = "pe-lab-examples-progress-v1";
+  const LOGIN_KEY = "pe-lab-examples-login-v1";
+
+  // ---------- всего заданий ----------
+  function allChallengeLists(part) {
+    return [part.challenges, part.challenges2, part.challenges3].filter(Boolean);
+  }
+  function partChallenges(part) {
+    const out = [];
+    allChallengeLists(part).forEach((list) => {
+      list.forEach((ch) => {
+        if (ch && (ch.code || ch.calc || ch.compose)) out.push(ch);
+      });
+    });
+    return out;
+  }
+  function totalChallenges() {
+    let n = 0;
+    PARTS.forEach((p) => (n += partChallenges(p).length));
+    return n;
+  }
+
+  // ---------- состояние ----------
+  let state = {
+    login: null, // {name, group, manual}
+    currentPart: 0,
+    solved: {}, // "partId:index" -> true
+    attempts: {}, // "partId:index" -> число неверных попыток
+    pasteFlags: 0,
+    keypresses: 0,
+    startTime: Date.now(),
+  };
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) Object.assign(state, JSON.parse(raw));
+    } catch (e) {}
+  }
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  function solvedCount() {
+    return Object.keys(state.solved).filter((k) => state.solved[k]).length;
+  }
+
+  // ---------- защита от копирования ----------
+  function hookAntiCopy(root) {
+    root.querySelectorAll("[data-nocopy]").forEach((el) => {
+      el.addEventListener("copy", (e) => e.preventDefault());
+      el.addEventListener("cut", (e) => e.preventDefault());
+      el.addEventListener("contextmenu", (e) => e.preventDefault());
+      el.addEventListener("dragstart", (e) => e.preventDefault());
+      el.addEventListener("selectstart", (e) => e.preventDefault());
+      el.style.userSelect = "none";
+      el.style.webkitUserSelect = "none";
+    });
+    root.querySelectorAll("textarea[data-answer]").forEach((ta) => {
+      ta.addEventListener("paste", (e) => {
+        e.preventDefault();
+        state.pasteFlags++;
+      });
+      ta.addEventListener("drop", (e) => {
+        e.preventDefault();
+        state.pasteFlags++;
+      });
+      ta.addEventListener("keydown", () => {
+        state.keypresses++;
+      });
+    });
+  }
+  document.addEventListener("copy", (e) => {
+    if (e.target.closest && e.target.closest("[data-nocopy]")) e.preventDefault();
+  });
+  document.addEventListener("contextmenu", (e) => {
+    if (e.target.closest && e.target.closest("[data-nocopy]")) e.preventDefault();
+  });
+
+  // ---------- рендер ----------
+  const app = document.getElementById("app");
+  const gate = document.getElementById("gate");
+  const mainUi = document.getElementById("mainUi");
+  const progressFill = document.getElementById("progressFill");
+  const progressLabel = document.getElementById("progressLabel");
+  const whoLabel = document.getElementById("whoLabel");
+  const navList = document.getElementById("navList");
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function renderNav() {
+    navList.innerHTML = "";
+    PARTS.forEach((p, idx) => {
+      const li = document.createElement("li");
+      const chs = partChallenges(p);
+      const done = chs.length > 0 && chs.every((ch, i) => state.solved[p.id + ":" + i]);
+      li.className = "navItem" + (idx === state.currentPart ? " active" : "") + (done ? " done" : "");
+      li.innerHTML = `<span class="navTag">${escapeHtml(p.tag)}</span><span>${escapeHtml(p.title)}</span>${done ? '<span class="navCheck">✓</span>' : ""}`;
+      li.addEventListener("click", () => {
+        state.currentPart = idx;
+        saveProgress();
+        renderPart();
+        renderNav();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      navList.appendChild(li);
+    });
+  }
+
+  function challengeKey(part, idx) {
+    return part.id + ":" + idx;
+  }
+
+  function renderChallenge(part, ch, idx) {
+    const key = challengeKey(part, idx);
+    const solved = !!state.solved[key];
+    const wrap = document.createElement("div");
+    wrap.className = "challenge" + (solved ? " solved" : "");
+
+    if (ch.code) {
+      wrap.innerHTML = `
+        <div class="chHead"><span class="chBadge code">код</span>
+          <span class="chTitle">${ch.filename ? "Наберите функцию <code>" + escapeHtml(ch.filename) + "</code>:" : "Наберите код:"}</span></div>
+        <textarea class="answerBox code" data-answer="1" spellcheck="false" placeholder="печатайте код здесь..." ${solved ? "disabled" : ""}></textarea>
+        <div class="chRow">
+          <button class="btnCheck">Проверить</button>
+          <span class="chMsg"></span>
+        </div>`;
+    } else if (ch.calc) {
+      wrap.innerHTML = `
+        <div class="chHead"><span class="chBadge calc">расчёт</span>
+          <span class="chTitle">${escapeHtml(ch.question)}</span></div>
+        <input class="answerBox calc" data-answer="1" type="text" placeholder="ваш ответ" ${solved ? "disabled" : ""}/>
+        <div class="chRow">
+          <button class="btnCheck">Проверить</button>
+          <span class="chMsg"></span>
+        </div>`;
+    } else if (ch.compose) {
+      wrap.innerHTML = `
+        <div class="chHead"><span class="chBadge compose">открытое</span>
+          <span class="chTitle">${escapeHtml(ch.question)}</span></div>
+        <textarea class="answerBox compose" data-answer="1" placeholder="опишите свой вариант..." ${solved ? "disabled" : ""}></textarea>
+        <div class="chRow">
+          <button class="btnCheck">Засчитать</button>
+          <span class="chMsg"></span>
+        </div>`;
+    }
+
+    if (solved) {
+      const msg = wrap.querySelector(".chMsg");
+      if (msg) {
+        msg.textContent = "✓ принято";
+        msg.classList.add("ok");
+      }
+    }
+
+    const btn = wrap.querySelector(".btnCheck");
+    const input = wrap.querySelector(".answerBox");
+    if (btn && input) {
+      const doCheck = () => {
+        let res;
+        if (ch.code) res = checkTyped(ch, input.value);
+        else if (ch.calc) res = checkCalc(ch, input.value);
+        else res = checkCompose(ch, input.value);
+
+        const msg = wrap.querySelector(".chMsg");
+        if (res.ok) {
+          state.solved[key] = true;
+          state.attempts[key] = state.attempts[key] || 0;
+          saveProgress();
+          wrap.classList.add("solved");
+          msg.textContent = "✓ принято";
+          msg.classList.remove("err");
+          msg.classList.add("ok");
+          input.disabled = true;
+          renderNav();
+          updateProgressBar();
+        } else {
+          state.attempts[key] = (state.attempts[key] || 0) + 1;
+          saveProgress();
+          msg.textContent = "пока не то — попробуйте ещё раз";
+          msg.classList.remove("ok");
+          msg.classList.add("err");
+        }
+      };
+      btn.addEventListener("click", doCheck);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey && ch.calc) {
+          e.preventDefault();
+          doCheck();
+        }
+      });
+    }
+    return wrap;
+  }
+
+  function renderPart() {
+    const part = PARTS[state.currentPart];
+    const el = document.createElement("div");
+    el.className = "part";
+    el.innerHTML = `
+      <div class="partTag">${escapeHtml(part.tag)}</div>
+      <h2>${escapeHtml(part.title)}</h2>
+      <div class="theory">${part.html}</div>
+    `;
+
+    const tasksWrap = document.createElement("div");
+    tasksWrap.className = "tasks";
+    let idx = 0;
+    allChallengeLists(part).forEach((list) => {
+      list.forEach((ch) => {
+        if (ch.pre) {
+          const pre = document.createElement("div");
+          pre.className = "theory";
+          pre.innerHTML = ch.pre;
+          tasksWrap.appendChild(pre);
+        }
+        if (ch.code || ch.calc || ch.compose) {
+          tasksWrap.appendChild(renderChallenge(part, ch, idx));
+          idx++;
+        }
+      });
+    });
+    el.appendChild(tasksWrap);
+
+    const nav = document.createElement("div");
+    nav.className = "partNav";
+    const prevBtn = document.createElement("button");
+    prevBtn.textContent = "← Назад";
+    prevBtn.disabled = state.currentPart === 0;
+    prevBtn.addEventListener("click", () => {
+      state.currentPart = Math.max(0, state.currentPart - 1);
+      saveProgress();
+      renderPart();
+      renderNav();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = state.currentPart === PARTS.length - 1 ? "К отчёту →" : "Дальше →";
+    nextBtn.className = "primary";
+    nextBtn.addEventListener("click", () => {
+      if (state.currentPart === PARTS.length - 1) {
+        showReport();
+        return;
+      }
+      state.currentPart = Math.min(PARTS.length - 1, state.currentPart + 1);
+      saveProgress();
+      renderPart();
+      renderNav();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    nav.appendChild(prevBtn);
+    nav.appendChild(nextBtn);
+    el.appendChild(nav);
+
+    app.innerHTML = "";
+    app.appendChild(el);
+    hookAntiCopy(app);
+  }
+
+  function updateProgressBar() {
+    const total = totalChallenges();
+    const done = solvedCount();
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    progressFill.style.width = pct + "%";
+    progressLabel.textContent = `Решено ${done} из ${total} (${pct}%)`;
+  }
+
+  // ---------- отчёт ----------
+  function buildStatus() {
+    const total = totalChallenges();
+    const done = solvedCount();
+    const totalAttempts = Object.values(state.attempts).reduce((a, b) => a + b, 0);
+    const minutes = Math.round((Date.now() - state.startTime) / 60000);
+    const parts = [`решено ${done}/${total}`, `время ${minutes} мин`, `ошибочных попыток ${totalAttempts}`];
+    if (state.pasteFlags > 0) parts.push(`вставка: ${state.pasteFlags} раз(а)`);
+    if (location.hostname && location.hostname !== EXPECTED_HOST && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+      parts.push(`⚠ домен: ${location.hostname}`);
+    }
+    if (state.login && state.login.manual) parts.push("вход вручную");
+    return parts.join(" · ");
+  }
+
+  function showReport() {
+    const total = totalChallenges();
+    const done = solvedCount();
+    const status = buildStatus();
+    app.innerHTML = `
+      <div class="part">
+        <div class="partTag">Финал</div>
+        <h2>Отчёт преподавателю</h2>
+        <div class="theory">
+          <p>Студент: <b>${escapeHtml(state.login.name)}</b> · Группа: <b>${escapeHtml(state.login.group)}</b></p>
+          <p>Решено заданий: <b>${done} из ${total}</b></p>
+          <p>Статус: <span class="statusLine">${escapeHtml(status)}</span></p>
+        </div>
+        <div class="chRow">
+          <button id="sendReportBtn" class="primary">Отправить преподавателю</button>
+          <button id="copyReportBtn">Скопировать отчёт текстом</button>
+        </div>
+        <div id="reportMsg" class="chMsg"></div>
+      </div>
+    `;
+    document.getElementById("sendReportBtn").addEventListener("click", sendReport);
+    document.getElementById("copyReportBtn").addEventListener("click", () => {
+      const text = `${state.login.name} | ${state.login.group} | ${status} | решено ${done}/${total}`;
+      navigator.clipboard?.writeText(text).then(
+        () => {
+          document.getElementById("reportMsg").textContent = "Скопировано — вставьте преподавателю.";
+        },
+        () => {
+          document.getElementById("reportMsg").textContent = text;
+        }
+      );
+    });
+  }
+
+  function sendReport() {
+    const msg = document.getElementById("reportMsg");
+    if (!GOOGLE_FORM_ACTION || !GOOGLE_FORM_ENTRIES.name) {
+      msg.textContent = "Форма отчётов пока не настроена преподавателем — используйте «Скопировать отчёт текстом».";
+      return;
+    }
+    const total = totalChallenges();
+    const done = solvedCount();
+    const status = buildStatus();
+    const fd = new FormData();
+    fd.append(GOOGLE_FORM_ENTRIES.name, state.login.name);
+    fd.append(GOOGLE_FORM_ENTRIES.group, state.login.group);
+    fd.append(GOOGLE_FORM_ENTRIES.status, status);
+    fd.append(GOOGLE_FORM_ENTRIES.solved, String(done) + "/" + String(total));
+    fetch(GOOGLE_FORM_ACTION, { method: "POST", mode: "no-cors", body: fd })
+      .then(() => {
+        msg.textContent = "✓ Отправлено преподавателю.";
+        msg.classList.add("ok");
+      })
+      .catch(() => {
+        msg.textContent = "Не получилось отправить — используйте «Скопировать отчёт текстом».";
+      });
+  }
+
+  // ---------- экран входа ----------
+  function initGate() {
+    const groupSel = document.getElementById("gateGroup");
+    const studentSel = document.getElementById("gateStudent");
+    const studentWrap = document.getElementById("gateStudentWrap");
+    const manualWrap = document.getElementById("gateManualWrap");
+    const nameInput = document.getElementById("gateName");
+    const startBtn = document.getElementById("gateStart");
+    const errEl = document.getElementById("gateErr");
+
+    Object.keys(GROUPS).forEach((g) => {
+      const o = document.createElement("option");
+      o.value = g;
+      o.textContent = g;
+      groupSel.appendChild(o);
+    });
+    const otherOpt = document.createElement("option");
+    otherOpt.value = "__other__";
+    otherOpt.textContent = "Другая группа / меня нет в списке";
+    groupSel.appendChild(otherOpt);
+
+    function refreshStudents() {
+      const g = groupSel.value;
+      studentSel.innerHTML = '<option value="">— выберите —</option>';
+      if (g && g !== "__other__" && GROUPS[g]) {
+        GROUPS[g].forEach((name) => {
+          const o = document.createElement("option");
+          o.value = name;
+          o.textContent = name;
+          studentSel.appendChild(o);
+        });
+        const noneOpt = document.createElement("option");
+        noneOpt.value = "__none__";
+        noneOpt.textContent = "Меня нет в списке";
+        studentSel.appendChild(noneOpt);
+        studentWrap.style.display = "";
+        studentSel.disabled = false;
+        manualWrap.style.display = "none";
+      } else if (g === "__other__") {
+        studentWrap.style.display = "none";
+        manualWrap.style.display = "";
+      } else {
+        studentWrap.style.display = "none";
+        manualWrap.style.display = "none";
+      }
+      validateGate();
+    }
+
+    function validateGate() {
+      const g = groupSel.value;
+      let ok = false;
+      if (g === "__other__") {
+        ok = nameInput.value.trim().length > 1 && document.getElementById("gateGroupManual").value.trim().length > 0;
+      } else if (g && studentSel.value === "__none__") {
+        ok = nameInput.value.trim().length > 1;
+      } else if (g && studentSel.value) {
+        ok = true;
+      }
+      startBtn.disabled = !ok;
+    }
+
+    groupSel.addEventListener("change", () => {
+      refreshStudents();
+      manualWrap.style.display = groupSel.value === "__other__" ? "" : manualWrap.style.display;
+      if (groupSel.value !== "__other__") document.getElementById("gateGroupManual").value = "";
+    });
+    studentSel.addEventListener("change", () => {
+      manualWrap.style.display = studentSel.value === "__none__" ? "" : "none";
+      validateGate();
+    });
+    nameInput.addEventListener("input", validateGate);
+    document.getElementById("gateGroupManual").addEventListener("input", validateGate);
+
+    startBtn.addEventListener("click", () => {
+      const g = groupSel.value;
+      let name, group, manual;
+      if (g === "__other__") {
+        name = nameInput.value.trim();
+        group = document.getElementById("gateGroupManual").value.trim();
+        manual = true;
+      } else if (studentSel.value === "__none__") {
+        name = nameInput.value.trim();
+        group = g;
+        manual = true;
+      } else {
+        name = studentSel.value;
+        group = g;
+        manual = false;
+      }
+      if (!name || !group) {
+        errEl.textContent = "Заполните все поля.";
+        return;
+      }
+      state.login = { name, group, manual };
+      try {
+        localStorage.setItem(LOGIN_KEY, JSON.stringify(state.login));
+      } catch (e) {}
+      startLab();
+    });
+
+    // восстановление предыдущего входа
+    try {
+      const raw = localStorage.getItem(LOGIN_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved && saved.name && saved.group) {
+          state.login = saved;
+          startLab();
+          return;
+        }
+      }
+    } catch (e) {}
+  }
+
+  function startLab() {
+    gate.style.display = "none";
+    mainUi.style.display = "";
+    whoLabel.textContent = `${state.login.name} · ${state.login.group}`;
+    renderNav();
+    renderPart();
+    updateProgressBar();
+  }
+
+  document.getElementById("resetProgressBtn")?.addEventListener("click", () => {
+    if (!confirm("Сбросить весь прогресс по заданиям? Вход (имя/группа) сохранится.")) return;
+    state.solved = {};
+    state.attempts = {};
+    state.pasteFlags = 0;
+    state.keypresses = 0;
+    state.startTime = Date.now();
+    saveProgress();
+    renderPart();
+    renderNav();
+    updateProgressBar();
+  });
+
+  document.getElementById("themeToggle")?.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    try {
+      localStorage.setItem("pe-lab-theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+    } catch (e) {}
+  });
+  try {
+    if (localStorage.getItem("pe-lab-theme") === "dark") document.documentElement.classList.add("dark");
+  } catch (e) {}
+
+  loadProgress();
+  initGate();
+})();
+
+
+</script>
+</body>
+</html>
